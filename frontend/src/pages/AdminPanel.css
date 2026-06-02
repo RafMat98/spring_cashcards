@@ -1,0 +1,205 @@
+.admin { min-height: 100vh; background: #f0f4f8; }
+
+.admin-header {
+    background: #1a202c;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.admin-header-left { display: flex; align-items: center; gap: 0.75rem; }
+
+.admin-badge {
+    background: #e53e3e;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+}
+
+.admin-header h1 { margin: 0; font-size: 1.3rem; color: white; }
+
+.welcome { color: #a0aec0; font-size: 0.9rem; }
+
+.logout-btn {
+    padding: 0.4rem 1rem;
+    background: transparent;
+    border: 1.5px solid #4a5568;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #a0aec0;
+    transition: all 0.2s;
+}
+.logout-btn:hover { border-color: #718096; color: white; }
+
+.header-right { display: flex; align-items: center; gap: 1rem; }
+
+.admin-main {
+    max-width: 960px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.stats-bar {
+    display: flex;
+    gap: 1rem;
+}
+
+.stat {
+    flex: 1;
+    background: white;
+    border-radius: 10px;
+    padding: 1.25rem;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+.stat-num { font-size: 1.8rem; font-weight: 700; color: #2d3748; }
+.stat-label { font-size: 0.8rem; color: #718096; }
+
+.create-section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.create-section h2 { margin: 0 0 1rem; font-size: 1.05rem; color: #2d3748; }
+
+.create-form {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+.create-form input, .create-form select {
+    flex: 1;
+    min-width: 120px;
+    padding: 0.6rem 0.85rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
+}
+.create-form input:focus, .create-form select:focus { border-color: #667eea; }
+.create-form button {
+    padding: 0.6rem 1.25rem;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+.create-form button:hover:not(:disabled) { background: #5a67d8; }
+.create-form button:disabled { background: #a0aec0; cursor: not-allowed; }
+
+.error-msg {
+    color: #e53e3e;
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+    background: #fff5f5;
+    border-radius: 6px;
+    border-left: 3px solid #e53e3e;
+}
+
+.tabs { display: flex; gap: 0.5rem; }
+.tab {
+    padding: 0.6rem 1.25rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #718096;
+    transition: all 0.2s;
+}
+.tab.active { background: #667eea; color: white; border-color: #667eea; }
+.tab:hover:not(.active) { border-color: #667eea; color: #667eea; }
+
+.admin-table {
+    width: 100%;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-collapse: collapse;
+    overflow: hidden;
+}
+.admin-table th {
+    background: #f7fafc;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #718096;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.admin-table td {
+    padding: 0.85rem 1rem;
+    border-top: 1px solid #f0f4f8;
+    font-size: 0.9rem;
+    color: #2d3748;
+}
+.admin-table tr:hover td { background: #f7fafc; }
+.muted { color: #a0aec0; font-size: 0.8rem; }
+
+.role-badge {
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+.role-badge.admin { background: #fed7d7; color: #c53030; }
+.role-badge.user  { background: #bee3f8; color: #2b6cb0; }
+
+.delete-btn {
+    padding: 0.3rem 0.75rem;
+    background: transparent;
+    border: 1.5px solid #feb2b2;
+    border-radius: 6px;
+    color: #e53e3e;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.delete-btn:hover:not(:disabled) { background: #fff5f5; border-color: #e53e3e; }
+.delete-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Μεταφορά χρημάτων */
+.transfer-section {
+    border-left: 4px solid #48bb78;
+}
+
+.transfer-btn {
+    padding: 0.6rem 1.25rem;
+    background: #48bb78 !important;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+.transfer-btn:hover:not(:disabled) { background: #38a169 !important; }
+.transfer-btn:disabled { background: #a0aec0 !important; cursor: not-allowed; }
+
+.success-msg {
+    color: #276749;
+    font-size: 0.85rem;
+    margin-top: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: #f0fff4;
+    border-radius: 6px;
+    border-left: 3px solid #48bb78;
+}
