@@ -113,7 +113,6 @@ cashcard-project/
 │
 ├── docker-compose.yml          ← Ορισμός όλων των services
 ├── README.md
-├── DOCUMENTATION.md            ← Αυτό το αρχείο
 │
 ├── backend/
 │   ├── Dockerfile              ← Multi-stage build (Gradle → JRE)
@@ -320,15 +319,26 @@ Authorization: Basic c2FyYWgxOmFiYzEyMw==
 
 ### CORS Configuration
 
-Επιτρέπει requests μόνο από `http://localhost:3000` (το React frontend):
+Το επιτρεπόμενο origin είναι πλέον **configurable** μέσω environment variable `ALLOWED_ORIGINS` (comma-separated λίστα), με default `http://localhost:3000` για τοπικό dev:
 
 ```java
-config.setAllowedOrigins(List.of("http://localhost:3000"));
-config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-config.setAllowCredentials(true);
+@Value("${ALLOWED_ORIGINS:http://localhost:3000}")
+private String allowedOrigins;
+...
+config.setAllowedOrigins(Arrays.stream(allowedOrigins.split(",")).map(String::trim).toList());
 ```
 
-Σε production το nginx κάνει proxy τα requests οπότε δεν χρειάζεται CORS.
+Στο `docker-compose.prod.yml`:
+
+```yaml
+backend:
+  environment:
+    ALLOWED_ORIGINS: https://spring.rmat.gr,https://www.spring.rmat.gr
+```
+
+**Γιατί χρειάζεται, ακόμα κι όταν το nginx κάνει proxy `/api/`:** οι browsers στέλνουν το header `Origin` σε κάθε state-changing request (POST/PUT/DELETE), ακόμα κι αν το request είναι τεχνικά same-origin. Αν το `Origin` δεν βρίσκεται στη λίστα `allowedOrigins`, το Spring Security `CorsFilter` το μπλοκάρει με **403** πριν καν φτάσει στο controller — άσχετα με authentication/role. Αν ξεχάσεις να προσθέσεις το production domain εδώ, θα δεις ακριβώς αυτό το σύμπτωμα: τα GET δουλεύουν, τα POST/PUT/DELETE γυρνάνε 403.
+
+Σε production το nginx κάνει proxy τα requests, οπότε δεν χρειάζεται _επιπλέον_ browser-level CORS πέρα από αυτό.
 
 ---
 
@@ -396,7 +406,7 @@ GET /cashcards?page=0&size=10&sortBy=amount&direction=desc
 
 #### Ownership Check
 
-Κάθε request στο `/cashcards/**` ελέγχει ότι το card ανήκει στον logged-in χρήστη. Αν ο `kumar2` προσπαθήσει να δει card του `sarah1`, παίρνει **404** (όχι 403) — σκόπιμα, για να μην αποκαλύψει ότι το card υπάρχει.
+Κάθε request στο `/cashcards/**` ελέγχει ότι το card ανήκει στον logged-in χρήστη. Αν ο `Rafail` προσπαθήσει να δει card του `Michael`, παίρνει **404** (όχι 403) — σκόπιμα, για να μην αποκαλύψει ότι το card υπάρχει.
 
 #### @Transactional στη μεταφορά
 
