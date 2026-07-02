@@ -29,7 +29,7 @@ echo "== Waiting for nginx... =="
 sleep 5
 
 echo "== Phase 3/4: Ask Let's Encrypt for cert =="
-docker compose -f docker-compose.prod.yml run --rm certbot certonly \
+docker compose -f docker-compose.prod.yml run --rm --entrypoint certbot certbot certonly \
     --webroot -w /var/www/certbot \
     -d "$DOMAIN1" -d "$DOMAIN2" \
     --email "$EMAIL" --agree-tos --no-eff-email
