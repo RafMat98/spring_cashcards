@@ -23,6 +23,7 @@ services:
       DB_URL: jdbc:postgresql://postgres:5432/cashcarddb
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
+      ALLOWED_ORIGINS: https://spring.rmat.gr,https://www.spring.rmat.gr
     depends_on:
       postgres:
         condition: service_healthy
