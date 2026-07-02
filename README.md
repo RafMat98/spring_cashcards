@@ -26,35 +26,39 @@
 ## 2. Τεχνολογίες
 
 ### Backend
-| Τεχνολογία | Έκδοση | Χρήση |
-|---|---|---|
-| Java | 17 | Γλώσσα προγραμματισμού |
-| Spring Boot | 3.1.4 | Framework backend |
-| Spring Security | 6.x | Authentication & Authorization |
-| Spring Data JDBC | 3.1.4 | Πρόσβαση στη βάση δεδομένων |
-| Spring Validation | 6.x | Επικύρωση δεδομένων |
-| BCrypt | built-in | Κρυπτογράφηση κωδικών |
-| Gradle | 8.4 | Build tool |
+
+| Τεχνολογία        | Έκδοση   | Χρήση                          |
+| ----------------- | -------- | ------------------------------ |
+| Java              | 17       | Γλώσσα προγραμματισμού         |
+| Spring Boot       | 3.1.4    | Framework backend              |
+| Spring Security   | 6.x      | Authentication & Authorization |
+| Spring Data JDBC  | 3.1.4    | Πρόσβαση στη βάση δεδομένων    |
+| Spring Validation | 6.x      | Επικύρωση δεδομένων            |
+| BCrypt            | built-in | Κρυπτογράφηση κωδικών          |
+| Gradle            | 8.4      | Build tool                     |
 
 ### Frontend
-| Τεχνολογία | Έκδοση | Χρήση |
-|---|---|---|
-| React | 18.2 | UI Framework |
-| React Router | 6.20 | Client-side routing |
-| Axios | 1.6 | HTTP requests |
-| Vite | 5.0 | Build tool & dev server |
+
+| Τεχνολογία   | Έκδοση | Χρήση                   |
+| ------------ | ------ | ----------------------- |
+| React        | 18.2   | UI Framework            |
+| React Router | 6.20   | Client-side routing     |
+| Axios        | 1.6    | HTTP requests           |
+| Vite         | 5.0    | Build tool & dev server |
 
 ### Βάση Δεδομένων
-| Τεχνολογία | Έκδοση | Χρήση |
-|---|---|---|
-| PostgreSQL | 16 | Κύρια βάση δεδομένων |
+
+| Τεχνολογία | Έκδοση | Χρήση                |
+| ---------- | ------ | -------------------- |
+| PostgreSQL | 16     | Κύρια βάση δεδομένων |
 
 ### Infrastructure
-| Τεχνολογία | Χρήση |
-|---|---|
-| Docker | Containerization |
-| Docker Compose | Orchestration |
-| nginx | Web server για το React (production) |
+
+| Τεχνολογία     | Χρήση                                |
+| -------------- | ------------------------------------ |
+| Docker         | Containerization                     |
+| Docker Compose | Orchestration                        |
+| nginx          | Web server για το React (production) |
 
 ---
 
@@ -92,6 +96,7 @@
 ### Client Side Rendering (CSR)
 
 Η εφαρμογή χρησιμοποιεί **Client Side Rendering**. Αυτό σημαίνει ότι:
+
 - Ο nginx στέλνει ένα άδειο `index.html` στον browser
 - Ο browser κατεβάζει το JavaScript bundle
 - Το React τρέχει **μέσα στον browser** και δημιουργεί το UI
@@ -152,20 +157,20 @@ cashcard-project/
 
 ### Πίνακας `users`
 
-| Στήλη | Τύπος | Περιγραφή |
-|---|---|---|
-| id | BIGSERIAL PK | Αυτόματο ID |
-| username | VARCHAR(50) UNIQUE | Μοναδικό όνομα χρήστη |
-| password | VARCHAR(255) | BCrypt hash (ποτέ plain text) |
-| role | VARCHAR(20) | "USER" ή "ADMIN" |
+| Στήλη    | Τύπος              | Περιγραφή                     |
+| -------- | ------------------ | ----------------------------- |
+| id       | BIGSERIAL PK       | Αυτόματο ID                   |
+| username | VARCHAR(50) UNIQUE | Μοναδικό όνομα χρήστη         |
+| password | VARCHAR(255)       | BCrypt hash (ποτέ plain text) |
+| role     | VARCHAR(20)        | "USER" ή "ADMIN"              |
 
 ### Πίνακας `cash_card`
 
-| Στήλη | Τύπος | Περιγραφή |
-|---|---|---|
-| id | BIGSERIAL PK | Αυτόματο ID |
-| amount | DOUBLE PRECISION | Ποσό κάρτας |
-| owner | VARCHAR(50) FK | Αναφορά στο username του χρήστη |
+| Στήλη  | Τύπος            | Περιγραφή                       |
+| ------ | ---------------- | ------------------------------- |
+| id     | BIGSERIAL PK     | Αυτόματο ID                     |
+| amount | DOUBLE PRECISION | Ποσό κάρτας                     |
+| owner  | VARCHAR(50) FK   | Αναφορά στο username του χρήστη |
 
 ### Σχέσεις
 
@@ -180,11 +185,11 @@ users (1) ──────── (N) cash_card
 
 Κατά την εκκίνηση δημιουργούνται αυτόματα:
 
-| Username | Password | Role |
-|---|---|---|
-| sarah1 | abc123 | USER |
-| kumar2 | xyz789 | USER |
-| admin | admin123 | ADMIN |
+| Username | Password   | Role  |
+| -------- | ---------- | ----- |
+| Rafail   | rafail123  | USER  |
+| Michael  | michael456 | USER  |
+| admin    | admin123   | ADMIN |
 
 Τα passwords αποθηκεύονται ως **BCrypt hashes** — ποτέ ως plain text.
 
@@ -239,6 +244,20 @@ CashCard card = repository.findByIdAndOwner(id, principal.getName());
 void deleteByUsername(String username);
 ```
 
+### Ασφαλιστική δικλείδα στο `deleteUser` (AdminController.java)
+
+Το `DELETE /admin/users/{username}` **δεν** διαγράφει αυτόματα όλα τα cards του χρήστη. Διαγράφει μόνο όσα έχουν `amount == 0`:
+
+```java
+cashCardRepository.findAll().forEach(card -> {
+    if (card.owner().equals(username) && card.amount() == 0) {
+        cashCardRepository.deleteById(card.id());
+    }
+});
+```
+
+Αυτό είναι σκόπιμο: αποτρέπει τον admin να διαγράψει «κατά λάθος» χρήματα που βρίσκονται ακόμα σε ενεργά cards. Αν ένας χρήστης έχει card με μη μηδενικό υπόλοιπο, ο admin πρέπει πρώτα να το μεταφέρει αλλού (`/admin/transfer`) ή να το μηδενίσει, πριν ο χρήστης διαγραφεί καθαρά χωρίς να μείνουν πίσω orphaned cards με θετικό υπόλοιπο.
+
 ---
 
 ## 7. Security
@@ -275,6 +294,7 @@ Authorization: Basic c2FyYWgxOmFiYzEyMw==
 ```
 
 Το BCrypt είναι **μονόδρομο** (one-way hash) — δεν αποκρυπτογραφείται. Κατά το login το Spring Security:
+
 1. Παίρνει το password που έγραψε ο χρήστης
 2. Κάνει hash με τον ίδιο αλγόριθμο
 3. Συγκρίνει τα δύο hashes
@@ -291,10 +311,10 @@ Authorization: Basic c2FyYWgxOmFiYzEyMw==
 )
 ```
 
-| Role | Endpoints | Περιγραφή |
-|---|---|---|
-| USER | /cashcards/** | Μόνο τα δικά του cards |
-| ADMIN | /admin/** | Όλοι οι χρήστες & cards |
+| Role  | Endpoints       | Περιγραφή               |
+| ----- | --------------- | ----------------------- |
+| USER  | /cashcards/\*\* | Μόνο τα δικά του cards  |
+| ADMIN | /admin/\*\*     | Όλοι οι χρήστες & cards |
 
 Ο ADMIN **δεν μπορεί** να καλέσει `/cashcards/**` (403 Forbidden) και αντίστροφα ο USER δεν μπορεί να καλέσει `/admin/**`.
 
@@ -316,13 +336,13 @@ config.setAllowCredentials(true);
 
 ### User Endpoints (`/cashcards/**`) — Απαιτεί ROLE_USER
 
-| Method | URL | Περιγραφή | Response |
-|---|---|---|---|
-| GET | /cashcards | Όλα τα cards του χρήστη | 200 + JSON array |
-| GET | /cashcards/{id} | Ένα συγκεκριμένο card | 200 ή 404 |
-| POST | /cashcards | Δημιουργία νέου card | 201 + Location header |
-| PUT | /cashcards/{id} | Ενημέρωση ποσού | 200 ή 404 |
-| DELETE | /cashcards/{id} | Διαγραφή card | 204 ή 404 |
+| Method | URL                 | Περιγραφή                                | Response              |
+| ------ | ------------------- | ---------------------------------------- | --------------------- |
+| GET    | /cashcards          | Όλα τα cards του χρήστη                  | 200 + JSON array      |
+| GET    | /cashcards/{id}     | Ένα συγκεκριμένο card                    | 200 ή 404             |
+| POST   | /cashcards/transfer | Μεταφορά χρημάτων μεταξύ δικών του cards | 200 ή 400 ή 403 ή 404 |
+
+> **Σημείωση:** Ο απλός χρήστης **δεν** μπορεί να δημιουργήσει, ενημερώσει ή διαγράψει card μόνος του — αυτές οι ενέργειες γίνονται μόνο από τον ADMIN (`/admin/cards`). Ο χρήστης μπορεί μόνο να δει τα cards του και να μεταφέρει χρήματα ανάμεσα σε δικά του cards.
 
 #### Pagination & Sorting
 
@@ -330,26 +350,32 @@ config.setAllowCredentials(true);
 GET /cashcards?page=0&size=10&sortBy=amount&direction=desc
 ```
 
-#### Παράδειγμα POST body:
+#### Παράδειγμα POST /cashcards/transfer body:
+
 ```json
-{ "amount": 150.00 }
+{
+  "fromCardId": 1,
+  "toCardId": 2,
+  "amount": 50.0
+}
 ```
 
-Ο `owner` ορίζεται αυτόματα από τον logged-in χρήστη — δεν στέλνεται από τον client.
+Το backend ελέγχει ότι **και τα δύο** cards (`fromCardId`, `toCardId`) ανήκουν στον logged-in χρήστη· αλλιώς επιστρέφει 403.
 
 ### Admin Endpoints (`/admin/**`) — Απαιτεί ROLE_ADMIN
 
-| Method | URL | Περιγραφή | Response |
-|---|---|---|---|
-| GET | /admin/users | Όλοι οι χρήστες (χωρίς passwords) | 200 + JSON array |
-| GET | /admin/cards | Όλα τα cards | 200 + JSON array |
-| POST | /admin/users | Δημιουργία χρήστη | 201 ή 409 (conflict) |
-| POST | /admin/cards | Δημιουργία card για χρήστη | 201 ή 404 |
-| POST | /admin/transfer | Μεταφορά χρημάτων | 200 ή 400 ή 404 |
-| DELETE | /admin/users/{username} | Διαγραφή χρήστη + cards | 204 ή 404 |
-| DELETE | /admin/cards/{id} | Διαγραφή card | 204 ή 404 |
+| Method | URL                     | Περιγραφή                                      | Response             |
+| ------ | ----------------------- | ---------------------------------------------- | -------------------- |
+| GET    | /admin/users            | Όλοι οι χρήστες (χωρίς passwords)              | 200 + JSON array     |
+| GET    | /admin/cards            | Όλα τα cards                                   | 200 + JSON array     |
+| POST   | /admin/users            | Δημιουργία χρήστη                              | 201 ή 409 (conflict) |
+| POST   | /admin/cards            | Δημιουργία card για χρήστη                     | 201 ή 404            |
+| POST   | /admin/transfer         | Μεταφορά χρημάτων                              | 200 ή 400 ή 404      |
+| DELETE | /admin/users/{username} | Διαγραφή χρήστη (+ cards με μηδενικό υπόλοιπο) | 204 ή 404            |
+| DELETE | /admin/cards/{id}       | Διαγραφή card                                  | 204 ή 404            |
 
 #### Παράδειγμα POST /admin/users body:
+
 ```json
 {
   "username": "newuser",
@@ -359,11 +385,12 @@ GET /cashcards?page=0&size=10&sortBy=amount&direction=desc
 ```
 
 #### Παράδειγμα POST /admin/transfer body:
+
 ```json
 {
   "fromCardId": 1,
   "toCardId": 3,
-  "amount": 50.00
+  "amount": 50.0
 }
 ```
 
@@ -401,13 +428,15 @@ App.jsx (Router)
 Κρατάει τα credentials στη μνήμη (React state) και δημιουργεί το axios instance:
 
 ```js
-const createApi = (username, password) => axios.create({
+const createApi = (username, password) =>
+  axios.create({
     baseURL: BASE_URL,
-    auth: { username, password },  // ← αυτό φτιάχνει το Basic Auth header
-});
+    auth: { username, password }, // ← αυτό φτιάχνει το Basic Auth header
+  });
 ```
 
 Κατά το login δοκιμάζει πρώτα το `/admin/users` endpoint για να ανιχνεύσει το role:
+
 - Αν επιστρέψει 200 → ADMIN
 - Αν επιστρέψει 403 → USER (δοκιμάζει `/cashcards`)
 - Αν επιστρέψει 401 → λάθος credentials
@@ -418,26 +447,30 @@ const createApi = (username, password) => axios.create({
 
 ```jsx
 if (!auth) return <Navigate to="/login" />;
-if (requiredRole === 'ADMIN' && auth.role !== 'ADMIN') 
-    return <Navigate to="/dashboard" />;
+if (requiredRole === "ADMIN" && auth.role !== "ADMIN")
+  return <Navigate to="/dashboard" />;
 ```
 
 ### LoginPage.jsx
 
 Απλή φόρμα username/password. Μετά την επιτυχή σύνδεση ανακατευθύνει:
+
 - ADMIN → `/admin`
 - USER → `/dashboard`
 
 ### Dashboard.jsx — Σελίδα Χρήστη
 
 Επιτρέπει στον χρήστη να:
+
 - Βλέπει όλα τα cards του (ταξινομημένα κατά ποσό)
-- Δημιουργεί νέο card
-- Διαγράφει card
+- Μεταφέρει χρήματα ανάμεσα σε δύο δικά του cards
+
+Η δημιουργία νέου card γίνεται μόνο από τον ADMIN, μέσω του AdminPanel.
 
 ### AdminPanel.jsx — Σελίδα Admin
 
 Επιτρέπει στον admin να:
+
 - Βλέπει στατιστικά (χρήστες, cards, συνολικό ποσό)
 - Δημιουργεί card για συγκεκριμένο χρήστη
 - Δημιουργεί νέο χρήστη (με επιλογή role)
@@ -451,8 +484,8 @@ if (requiredRole === 'ADMIN' && auth.role !== 'ADMIN')
 
 ```js
 const BASE_URL = import.meta.env.PROD
-    ? '/api'                    // Docker: nginx proxy
-    : 'http://localhost:8080';  // Local dev: απευθείας
+  ? "/api" // Docker: nginx proxy
+  : "http://localhost:8080"; // Local dev: απευθείας
 ```
 
 Σε development (`npm run dev`) τα requests πηγαίνουν απευθείας στο Spring Boot. Σε production (Docker) πηγαίνουν στο nginx που τα κάνει proxy.
@@ -500,13 +533,24 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 
 ### nginx Configuration
 
+Υπάρχουν **δύο** εναλλακτικά configs, επιλέγονται μέσω build arg `NGINX_ENV` στο `frontend/Dockerfile`:
+
+| Αρχείο                      | Πότε χρησιμοποιείται                  | Πώς                                                      |
+| --------------------------- | ------------------------------------- | -------------------------------------------------------- |
+| `frontend/nginx.local.conf` | Τοπικά, χωρίς domain/SSL              | `docker compose up --build` (default: `NGINX_ENV=local`) |
+| `frontend/nginx.prod.conf`  | Production, `spring.rmat.gr` με HTTPS | `docker compose -f docker-compose.prod.yml up --build`   |
+
+Το `nginx.local.conf` σερβίρει απευθείας στο HTTP (`:80`) και κάνει proxy `/api/` στο backend — δεν χρειάζεται certificates. Το `nginx.prod.conf` κάνει redirect `:80 → :443`, χρησιμοποιεί πραγματικά Let's Encrypt certificates (μέσω του `certbot` service) και σερβίρει HTTPS.
+
+**Γιατί δύο ξεχωριστά αρχεία και όχι ένα combined:** αν βάλεις σε ένα conf ταυτόχρονα ένα ενεργό `listen 443 ssl` block, το nginx θα αρνηθεί να ξεκινήσει όποτε δεν βρίσκει τα cert αρχεία (π.χ. τοπικά, χωρίς certbot) — δηλαδή θα σου σπάσει και το localhost testing. Με δύο αρχεία, κάθε environment χτίζει μόνο ό,τι μπορεί πραγματικά να τρέξει.
+
 ```nginx
+# nginx.local.conf
 location /api/ {
-    proxy_pass http://backend:8080/;       # proxy στο Spring Boot
+    proxy_pass http://backend:8080/;
     proxy_hide_header WWW-Authenticate;    # αποτρέπει browser popup
     proxy_set_header Authorization $http_authorization;
 }
-
 location / {
     try_files $uri $uri/ /index.html;      # React Router support
 }
@@ -526,7 +570,7 @@ postgres:
 backend:
   depends_on:
     postgres:
-      condition: service_healthy   # περιμένει να είναι έτοιμη η βάση
+      condition: service_healthy # περιμένει να είναι έτοιμη η βάση
 ```
 
 Ο backend **δεν ξεκινά** αν η βάση δεν είναι έτοιμη.
@@ -567,6 +611,7 @@ docker compose up --build
 ### Χωρίς Docker (local development)
 
 **Backend:**
+
 ```bash
 # Ξεκίνα μόνο τη βάση με Docker
 docker compose up postgres
@@ -577,6 +622,7 @@ cd backend
 ```
 
 **Frontend:**
+
 ```bash
 cd frontend
 npm install
@@ -585,11 +631,11 @@ npm run dev     # http://localhost:3000
 
 ### URLs
 
-| Service | URL | Περιγραφή |
-|---|---|---|
-| Frontend | http://localhost:3000 | React App |
-| Backend | http://localhost:8080 | Spring Boot API |
-| Database | localhost:5432 | PostgreSQL |
+| Service  | URL                   | Περιγραφή       |
+| -------- | --------------------- | --------------- |
+| Frontend | http://localhost:3000 | React App       |
+| Backend  | http://localhost:8080 | Spring Boot API |
+| Database | localhost:5432        | PostgreSQL      |
 
 ### Έλεγχος Βάσης Δεδομένων
 
@@ -607,13 +653,13 @@ SELECT * FROM cash_card;                      # cards
 ### Test με curl
 
 ```bash
-# GET όλα τα cards του sarah1
-curl -u sarah1:abc123 http://localhost:8080/cashcards
+# GET όλα τα cards του Rafail
+curl -u Rafail:rafail123 http://localhost:8080/cashcards
 
-# POST νέο card
-curl -u sarah1:abc123 -X POST http://localhost:8080/cashcards \
+# POST μεταφορά χρημάτων μεταξύ δικών του cards
+curl -u Rafail:rafail123 -X POST http://localhost:8080/cashcards/transfer \
      -H "Content-Type: application/json" \
-     -d '{"amount": 75.00}'
+     -d '{"fromCardId": 1, "toCardId": 2, "amount": 50.00}'
 
 # DELETE card (admin)
 curl -u admin:admin123 -X DELETE http://localhost:8080/admin/cards/1
@@ -630,36 +676,38 @@ curl -u admin:admin123 -X POST http://localhost:8080/admin/transfer \
 
 ### Αρχικοί Χρήστες
 
-| Username | Password | Role | Περιγραφή |
-|---|---|---|---|
-| sarah1 | abc123 | USER | Κανονικός χρήστης |
-| kumar2 | xyz789 | USER | Κανονικός χρήστης |
-| admin | admin123 | ADMIN | Διαχειριστής |
+| Username | Password   | Role  | Περιγραφή         |
+| -------- | ---------- | ----- | ----------------- |
+| Rafail   | rafail123  | USER  | Κανονικός χρήστης |
+| Michael  | michael456 | USER  | Κανονικός χρήστης |
+| admin    | admin123   | ADMIN | Διαχειριστής      |
 
 ### Δικαιώματα ανά Role
 
 #### ROLE_USER
-| Ενέργεια | Επιτρέπεται |
-|---|---|
-| Βλέπει τα δικά του cards | ✓ |
-| Δημιουργεί νέο card | ✓ |
-| Ενημερώνει δικό του card | ✓ |
-| Διαγράφει δικό του card | ✓ |
-| Βλέπει cards άλλου χρήστη | ✗ (404) |
-| Πρόσβαση σε /admin/** | ✗ (403) |
+
+| Ενέργεια                  | Επιτρέπεται |
+| ------------------------- | ----------- |
+| Βλέπει τα δικά του cards  | ✓           |
+| Δημιουργεί νέο card       | ✓           |
+| Ενημερώνει δικό του card  | ✓           |
+| Διαγράφει δικό του card   | ✓           |
+| Βλέπει cards άλλου χρήστη | ✗ (404)     |
+| Πρόσβαση σε /admin/\*\*   | ✗ (403)     |
 
 #### ROLE_ADMIN
-| Ενέργεια | Επιτρέπεται |
-|---|---|
-| Βλέπει όλους τους χρήστες | ✓ |
-| Βλέπει όλα τα cards | ✓ |
-| Δημιουργεί χρήστη | ✓ |
-| Δημιουργεί card για χρήστη | ✓ |
-| Διαγράφει χρήστη + cards | ✓ |
-| Διαγράφει card | ✓ |
-| Μεταφέρει χρήματα | ✓ |
-| Διαγράφει τον εαυτό του | ✗ |
-| Πρόσβαση σε /cashcards/** | ✗ (403) |
+
+| Ενέργεια                                    | Επιτρέπεται |
+| ------------------------------------------- | ----------- |
+| Βλέπει όλους τους χρήστες                   | ✓           |
+| Βλέπει όλα τα cards                         | ✓           |
+| Δημιουργεί χρήστη                           | ✓           |
+| Δημιουργεί card για χρήστη                  | ✓           |
+| Διαγράφει χρήστη (μόνο cards με υπόλοιπο 0) | ✓           |
+| Διαγράφει card                              | ✓           |
+| Μεταφέρει χρήματα                           | ✓           |
+| Διαγράφει τον εαυτό του                     | ✗           |
+| Πρόσβαση σε /cashcards/\*\*                 | ✗ (403)     |
 
 ### Security Notes
 

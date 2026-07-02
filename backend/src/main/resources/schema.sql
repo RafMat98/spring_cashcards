@@ -15,10 +15,13 @@ CREATE TABLE cash_card (
 );
 
 -- Verified BCrypt hashes
+-- Rafail  -> rafail123
+-- Michael -> michael456
+-- admin   -> admin123
 INSERT INTO users (username, password, role) VALUES
-    ('Rafail', '$2a$10$p4Mq4YMmYVAB62H7CyqbY.sBlHuto8gSA4LJkVQKutTbB1UTr6y1a', 'USER'),
-    ('Michael', '$2a$10$gIyOC/oMypcyDn7iOGpUQOlG.DUfxFhfqS7elFoKGVeNSdkau5.ja', 'USER'),
-    ('admin',  '$2a$10$9G1mnTLlrYpPM56HWhbvZeyljQ2ddZ9PWsUcoNm7Sjw5S7TlAX2U.', 'ADMIN');
+    ('Rafail', '$2a$10$cDxxERQPtnRrFDH59I0a/OZYh43SEDy2lYjNt3Q2q5t8BIXSvnYAW', 'USER'),
+    ('Michael', '$2a$10$xz71N1tlZdE31SFiczA8qeHdSy8prIgtjTjYvxASVUUPTvTjFE0Lm', 'USER'),
+    ('admin',  '$2a$10$lS9e9Ng7WdBrkwFXJ8dU3OW1kttIGgOaqBIehsq7ZsgeUqJy/HFMW', 'ADMIN');
 
 INSERT INTO cash_card (amount, owner) VALUES
     (123.45, 'Rafail'),

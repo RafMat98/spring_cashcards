@@ -17,9 +17,10 @@ FROM nginx:alpine
 # Copy built files in nginx
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Custom nginx config για React Router (single-page app)
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Selection config: local (default, without SSL) or prod (spring.rmat.gr + certbot)
+ARG NGINX_ENV=local
+COPY nginx.${NGINX_ENV}.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 80
+EXPOSE 80 443
 
 CMD ["nginx", "-g", "daemon off;"]
