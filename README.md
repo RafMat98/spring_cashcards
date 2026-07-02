@@ -716,3 +716,29 @@ curl -u admin:admin123 -X POST http://localhost:8080/admin/transfer \
 - Κάθε hash έχει τυχαίο **salt** — προστασία από rainbow table attacks
 - Το cost factor 10 κάνει το hashing σκόπιμα αργό (~100ms) — προστασία από brute force
 - Χωρίς HTTPS τα credentials ταξιδεύουν κωδικοποιημένα με Base64 (όχι κρυπτογραφημένα) — για production **πάντα HTTPS**
+
+---
+
+## 13. Πρώτη Εγκατάσταση SSL (μόνο μία φορά, στον production server)
+
+Το `nginx.prod.conf` απαιτεί να υπάρχει **ήδη** το certificate για να ξεκινήσει (`listen 443 ssl`). Αλλά το certificate παίρνεται _μέσω_ ενός nginx που ήδη τρέχει (webroot challenge) — άρα υπάρχει ένα chicken-and-egg πρόβλημα την πρώτη φορά που στήνεις τον server.
+
+### Λύση: `init-letsencrypt.sh`
+
+Το script κάνει αυτόματα 4 βήματα:
+
+1. Χτίζει το frontend με `nginx.bootstrap.conf` — μόνο HTTP, **δεν** ζητάει certs, άρα ξεκινάει πάντα.
+2. Σηκώνει `postgres` + `backend` + `frontend` με αυτό το config.
+3. Ζητάει το πρώτο certificate από το Let's Encrypt (webroot challenge μέσω `/var/www/certbot`).
+4. Ξαναχτίζει το frontend με το κανονικό `nginx.prod.conf` (SSL) και το κάνει `--force-recreate`.
+
+```bash
+chmod +x init-letsencrypt.sh
+./init-letsencrypt.sh spring.rmat.gr www.spring.rmat.gr your@email.com
+```
+
+Μετά από αυτό, οι επόμενες ανανεώσεις (renewals) γίνονται **αυτόματα** από το `certbot` service στο `docker-compose.prod.yml` (τρέχει `certbot renew` κάθε 12 ώρες, χρησιμοποιώντας ξανά webroot μέσω του location `/.well-known/acme-challenge/` που υπάρχει ήδη στο `nginx.prod.conf`). Δεν χρειάζεται να ξανατρέξεις το script, εκτός αν αλλάξεις domain ή χάσεις το volume `./certbot/conf`.
+
+### Τι πήγε λάθος στο πρώτο deploy
+
+Το σφάλμα `cannot load certificate ".../fullchain.pem": ... No such file or directory` σημαίνει ακριβώς αυτό: έγινε `docker compose -f docker-compose.prod.yml up` απευθείας με το `nginx.prod.conf`, χωρίς να έχει προηγηθεί το βήμα απόκτησης certificate. Το frontend container έμπαινε σε loop restart επειδή δεν έβρισκε ποτέ το `.pem` αρχείο. Λύση: τρέξε πρώτα το `init-letsencrypt.sh`, και μετά χρησιμοποίησε κανονικά `docker compose -f docker-compose.prod.yml up -d`.
