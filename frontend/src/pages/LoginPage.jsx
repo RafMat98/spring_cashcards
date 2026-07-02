@@ -46,7 +46,7 @@ export default function LoginPage() {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="π.χ. sarah1"
+              placeholder="admin"
               required
               autoFocus
             />
@@ -69,11 +69,6 @@ export default function LoginPage() {
             {loading ? "Σύνδεση..." : "Σύνδεση"}
           </button>
         </form>
-
-        <p className="login-hint">
-          User: <strong>sarah1</strong> / abc123 &nbsp;|&nbsp; Admin:{" "}
-          <strong>admin</strong> / admin123
-        </p>
       </div>
     </div>
   );

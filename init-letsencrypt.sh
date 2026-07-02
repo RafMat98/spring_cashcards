@@ -22,7 +22,7 @@ fi
 echo "== Phase 1/4: Build frontend with BOOTSTRAP config (without SSL) =="
 docker compose -f docker-compose.prod.yml build frontend --build-arg NGINX_ENV=bootstrap
 
-echo "== Βήμα 2/4: Build postgres + backend + frontend (bootstrap) =="
+echo "== Phase 2/4: Build postgres + backend + frontend (bootstrap) =="
 docker compose -f docker-compose.prod.yml up -d postgres backend frontend
 
 echo "== Waiting for nginx... =="
